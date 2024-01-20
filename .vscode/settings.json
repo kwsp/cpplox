@@ -1,0 +1,11 @@
+{
+    "editor.formatOnSave": true,
+    "C_Cpp.codeAnalysis.clangTidy.enabled": true,
+    "C_Cpp.codeAnalysis.clangTidy.checks.enabled": [
+        "performance-*"
+    ],
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.default.compileCommands": "${config:cmake.buildDirectory}/compile_commands.json",
+    "C_Cpp.formatting": "clangFormat",
+    "C_Cpp.intelliSenseEngine": "default"
+}
