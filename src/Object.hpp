@@ -2,22 +2,21 @@
 #include <concepts>
 #include <memory>
 #include <string>
+#include <utility>
 #include <variant>
 
 namespace lox {
 // Lox objects can be float64, boolean, string, or class
 
+// Represents a literal value (double | bool | string)
 class Object {
 public:
-  template <typename T> static std::shared_ptr<Object> make(const T &val) {
-    static_assert(std::is_same_v<T, double> || std::is_same_v<T, bool> ||
-                  std::is_same_v<T, std::string>);
-    return std::make_shared<Object>(val);
-  }
+  explicit Object() {}
+  explicit Object(const double val) : object(val) {}
+  explicit Object(const bool val) : object(val) {}
+  explicit Object(const std::string &val) : object(val) {}
 
-  template <typename T> Object(const T &val) : object(val) {}
-
-  std::string toString() const {
+  auto toString() const -> std::string {
     if (std::holds_alternative<double>(object))
       return std::to_string(std::get<double>(object));
 
@@ -30,8 +29,10 @@ public:
     return "";
   }
 
+  bool empty() const { return object.index() == 0; }
+
 private:
-  std::variant<double, bool, std::string> object;
+  std::variant<std::monostate, double, bool, std::string> object;
 };
 
 } // namespace lox

@@ -7,7 +7,6 @@
 #include "Scanner.hpp"
 #include "Token.hpp"
 #include "TokenType.hpp"
-#include <memory>
 
 namespace lox {
 
@@ -22,13 +21,13 @@ const static std::unordered_map<std::string, TokenType> KEYWORDS = {
     {"var", TokenType::VAR},       {"while", TokenType::WHILE},
 };
 
-bool Scanner::isAtEnd() { return current >= source.size(); }
+auto Scanner::isAtEnd() -> bool { return current >= source.size(); }
 
-char Scanner::advance() { return source[current++]; }
+auto Scanner::advance() -> char { return source[current++]; }
 
-void Scanner::addToken(TokenType type) { addToken(type, nullptr); }
+void Scanner::addToken(const TokenType type) { addToken(type, Object{}); }
 
-void Scanner::addToken(TokenType type, std::shared_ptr<Object> literal) {
+void Scanner::addToken(const TokenType type, const Object &literal) {
   const auto text = source.substr(start, current - start);
   // tokens.push_back(Token(type, text, std::move(literal), line));
   tokens.emplace_back(type, text, std::move(literal), line);
@@ -127,17 +126,17 @@ void Scanner::scanToken() {
   }
 }
 
-const std::vector<Token> &Scanner::scanTokens() {
+auto Scanner::scanTokens() -> const std::vector<Token> & {
   while (!isAtEnd()) {
     // At the beginning of the next lexeme.
     start = current;
     scanToken();
   }
-  tokens.push_back(Token(TokenType::LOX_EOF, "", nullptr, line));
+  tokens.push_back(Token(TokenType::LOX_EOF, "", Object{}, line));
   return tokens;
 };
 
-bool Scanner::match(char expected) {
+auto Scanner::match(char expected) -> bool {
   if (isAtEnd())
     return false;
   if (source[current] != expected)
@@ -146,13 +145,13 @@ bool Scanner::match(char expected) {
   return true;
 }
 
-char Scanner::peek() {
+auto Scanner::peek() -> char {
   if (isAtEnd())
     return '\0';
   return source[current];
 }
 
-char Scanner::peekNext() {
+auto Scanner::peekNext() -> char {
   if (current + 1 >= source.length())
     return '\0';
   return source[current + 1];
@@ -172,7 +171,7 @@ void Scanner::string() {
   advance();
   // Trim the surrounding quotes
   const std::string value = source.substr(start + 1, current - 2 - start);
-  addToken(TokenType::STRING, Object::make(value));
+  addToken(TokenType::STRING, Object(value));
 }
 
 void Scanner::number() {
@@ -189,16 +188,18 @@ void Scanner::number() {
   }
 
   const double value = std::stod(source.substr(start, current - start));
-  addToken(TokenType::NUMBER, Object::make(value));
+  addToken(TokenType::NUMBER, Object(value));
 }
 
-bool Scanner::isDigit(char c) { return c >= '0' && c <= '9'; }
+auto Scanner::isDigit(char c) -> bool { return c >= '0' && c <= '9'; }
 
-bool Scanner::isAlpha(char c) {
+auto Scanner::isAlpha(char c) -> bool {
   return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 
-bool Scanner::isAlphaNumeric(char c) { return isAlpha(c) || isDigit(c); }
+auto Scanner::isAlphaNumeric(char c) -> bool {
+  return isAlpha(c) || isDigit(c);
+}
 
 void Scanner::identifier() {
   while (isAlphaNumeric(peek()))

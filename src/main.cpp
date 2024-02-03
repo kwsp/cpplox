@@ -7,8 +7,14 @@
 #include <vector>
 
 #include "ErrorHandler.hpp"
+#include "Object.hpp"
 #include "Scanner.hpp"
 #include "Token.hpp"
+
+#include "AstPrinter.hpp"
+#include "Expr.hpp"
+#include "TokenType.hpp"
+#include <memory>
 
 namespace lox {
 
@@ -19,7 +25,7 @@ public:
 
   void run(const std::string &src) {
     Scanner scanner(src, errorHandler);
-    const auto tokens = scanner.scanTokens();
+    const auto &tokens = scanner.scanTokens();
     for (const auto &token : tokens) {
       std::cout << token << "\n";
     }
@@ -67,13 +73,28 @@ private:
 } // namespace lox
 
 int main(int argc, char **argv) {
-  lox::Runtime runtime;
-  if (argc > 2) {
-    std::cout << "Usage: cpplox [script]\n";
-    return 64;
-  } else if (argc == 2) {
-    return runtime.runFile(argv[1]);
-  } else {
-    return runtime.runPrompt();
-  }
+  // lox::Runtime runtime;
+  // if (argc > 2) {
+  //   std::cout << "Usage: cpplox [script]\n";
+  //   return 64;
+  // } else if (argc == 2) {
+  //   return runtime.runFile(argv[1]);
+  // } else {
+  //   return runtime.runPrompt();
+  // }
+
+  // Test Ast
+  using namespace lox::ast;
+  auto expression = std::make_unique<Binary>(
+      std::make_unique<Unary>(
+          std::make_unique<lox::Token>(lox::TokenType::MINUS, "-",
+                                       lox::Object{}, 1),
+          std::make_unique<Literal>(std::make_unique<lox::Object>(123.0))),
+      std::make_unique<lox::Token>(lox::TokenType::STAR, "*", lox::Object{}, 1),
+      std::make_unique<Grouping>(
+          std::make_unique<Literal>(std::make_unique<lox::Object>(45.67))));
+
+  AstPrinter printer;
+
+  std::cout << printer.print(expression.get()) << "\n";
 }

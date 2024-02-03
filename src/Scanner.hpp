@@ -15,22 +15,22 @@ public:
       : source(source), start(0), current(0), line(0),
         errorHandler(errorHandler) {}
 
-  const std::vector<Token> &scanTokens();
+  auto scanTokens() -> const std::vector<Token> &;
 
 private:
-  bool isAtEnd();
-  char advance();
-  void addToken(TokenType type);
-  void addToken(TokenType type, std::shared_ptr<Object> literal);
+  auto isAtEnd() -> bool;
+  auto advance() -> char;
+  void addToken(const TokenType type);
+  void addToken(const TokenType type, const Object &literal);
   void scanToken();
-  bool match(char expected);
+  auto match(char expected) -> bool;
   // Look ahead
-  char peek();
-  char peekNext();
+  auto peek() -> char;
+  auto peekNext() -> char;
 
-  static bool isDigit(char c);
-  static bool isAlpha(char c);
-  static bool isAlphaNumeric(char c);
+  static auto isDigit(char c) -> bool;
+  static auto isAlpha(char c) -> bool;
+  static auto isAlphaNumeric(char c) -> bool;
 
   // Handle a literal string
   void string();
