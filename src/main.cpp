@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
       std::make_unique<Grouping>(
           std::make_unique<Literal>(std::make_unique<lox::Object>(45.67))));
 
-  AstPrinter printer;
+  AstPrinterRPN printer;
 
   std::cout << printer.print(expression.get()) << "\n";
 }
