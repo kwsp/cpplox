@@ -22,43 +22,16 @@ struct AstPrinter : public Expr::Visitor {
     return acceptRet;
   }
 
-  template <typename T>
-  void parenthesize_inner(std::stringstream &ss, T *val)
-    requires(std::is_base_of_v<Expr, T>)
-  {
-    val->accept(*this);
-    ss << acceptRet;
-  }
-
-  template <typename T, typename... Targs>
-  void parenthesize_inner(std::stringstream &ss, T *val, Targs &&...rest)
-    requires(std::is_base_of_v<Expr, T>)
-  {
-    val->accept(*this);
-    ss << acceptRet << " ";
-    parenthesize_inner(ss, rest...);
-  }
-
-  template <typename T, typename... Targs>
-  R parenthesize(const std::string &name, T *expr, Targs &&...exprs)
-    requires(std::is_base_of_v<Expr, T>)
-  {
+  R parenthesize(const std::string &name,
+                 std::convertible_to<Expr *> auto &&...exprs) {
     std::stringstream ss;
-    ss << "(" << name << " ";
-    expr->accept(*this);
-    ss << acceptRet << " ";
-    parenthesize_inner(ss, exprs...);
-    ss << ")";
-    return ss.str();
-  }
+    ss << "(" << name;
 
-  template <typename T>
-  R parenthesize(const std::string &name, T *exprs)
-    requires(std::is_base_of_v<Expr, T>)
-  {
-    std::stringstream ss;
-    ss << "(" << name << " ";
-    parenthesize_inner(ss, exprs);
+    for (auto expr : std::initializer_list<Expr *>{exprs...}) {
+      expr->accept(*this);
+      ss << " " << acceptRet;
+    }
+
     ss << ")";
     return ss.str();
   }
